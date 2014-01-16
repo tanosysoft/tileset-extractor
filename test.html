@@ -141,7 +141,7 @@
 				var y = (-tile.y * 16) + 'px';
 				var tile_div = document.createElement('div');
 				tile_div.style = 'background-position: ' + [x, y].join(' ') + ';';
-				tile_div.setAttribute('tile-hash', hash);
+				tile_div.id = 'tile-' + hash;
 				tileset_div.appendChild(tile_div);
 			}
 		}
@@ -154,16 +154,13 @@
 				var coords_array = coords.split('/');
 				var x = (coords_array[0] * analysis.tile_size) + 'px';
 				var y = (coords_array[1] * analysis.tile_size) + 'px';
-				var sx = (-tile.x * analysis.tile_size) + 'px';
-				var sy = (-tile.y * analysis.tile_size) + 'px';
 				var tile_div = document.createElement('div');
 				tile_div.style = 
 				[
 					'left: ' + x,
 					'top: ' + y,
-					'background-position: ' + [sx, sy].join(' ')
-				].join('; ');
-				tile_div.setAttribute('tile-hash', hash);
+					'background-image: -moz-element(#tile-' + hash + ')'
+				].join(';');
 				tilemap_div.appendChild(tile_div);
 			}
 		}
