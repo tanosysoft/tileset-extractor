@@ -1,13 +1,12 @@
 <!doctype html>
 <meta charset="utf-8">
-<img src="bof-save-map.png">
+<img src="big-test.png">
 <canvas id="canvas" tile-size="16"></canvas>
 <div class="tileset"></div>
 <div class="tilemap"></div>
 <style>
 	.tileset
 	{
-		display: inline-block;
 		width: calc(16px * 8);
 		line-height: 0;
 	}
@@ -20,7 +19,6 @@
 	}
 	.tilemap
 	{
-		display: inline-block;
 		position: relative;
 		width: 256px;
 		height: 224px;
@@ -39,6 +37,7 @@
 		(
 			function()
 			{
+				var start_time = performance.now();
 				var image = document.images[0];
 				var canvas = document.getElementsByTagName('canvas')[0];
 				var tile_size = parseInt(canvas.getAttribute('tile-size'));
@@ -57,6 +56,12 @@
 						}
 						make_tileset(document.getElementsByClassName('tileset')[0], analysis);
 						make_tilemap(document.getElementsByClassName('tilemap')[0], analysis);
+						console.log
+						(
+							"Generating tile set & map took",
+							(performance.now() - start_time) / 1000,
+							"seconds."
+						);
 					}
 				);
 			}
@@ -91,24 +96,31 @@
 				(
 					function()
 					{
-						var x = i % analysis.map_width_in_tiles;
-						var y = Math.floor(i / analysis.map_width_in_tiles);
-						var tile_image_data = context.getImageData
-						(
-							x * tile_size,
-							y * tile_size,
-							tile_size,
-							tile_size
-						);
-						var tile_data = tile_image_data.data;
-						var tile_hash = SparkMD5.ArrayBuffer.hash(tile_data);
-						console.log(x, y, tile_hash);
-						analysis.tile_by_coordinates[[x, y].join('/')] = { hash: tile_hash };
-						analysis.tile_by_hash[tile_hash] = { x: x, y: y };
-						if(++i === map_area_in_tiles)
+						do
 						{
-							clearInterval(interval);
-							callback(null, analysis);
+							var x = i % analysis.map_width_in_tiles;
+							var y = Math.floor(i / analysis.map_width_in_tiles);
+							var tile_image_data = context.getImageData
+							(
+								x * tile_size,
+								y * tile_size,
+								tile_size,
+								tile_size
+							);
+							var tile_data = tile_image_data.data;
+							var tile_hash = SparkMD5.ArrayBuffer.hash(tile_data);
+							analysis.tile_by_coordinates[[x, y].join('/')] = { hash: tile_hash };
+							analysis.tile_by_hash[tile_hash] = { x: x, y: y };
+							if(++i === map_area_in_tiles)
+							{
+								clearInterval(interval);
+								callback(null, analysis);
+								break;
+							}
+						} while(i % 4 !== 0);
+						if(i % 32 === 0)
+						{
+							console.log(i, "out of", map_area_in_tiles, "tiles...");
 						}
 					},
 					1
@@ -127,7 +139,6 @@
 				var tile = analysis.tile_by_hash[hash];
 				var x = (-tile.x * 16) + 'px';
 				var y = (-tile.y * 16) + 'px';
-				console.log(x, y, hash);
 				var tile_div = document.createElement('div');
 				tile_div.style = 'background-position: ' + [x, y].join(' ') + ';';
 				tile_div.setAttribute('tile-hash', hash);
