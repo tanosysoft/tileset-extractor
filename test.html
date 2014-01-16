@@ -96,6 +96,10 @@
 				(
 					function()
 					{
+						if((i + 1) % 32 === 0)
+						{
+							console.log(i, "out of", map_area_in_tiles, "tiles...");
+						}
 						do
 						{
 							var x = i % analysis.map_width_in_tiles;
@@ -118,10 +122,6 @@
 								break;
 							}
 						} while(i % 4 !== 0);
-						if(i % 32 === 0)
-						{
-							console.log(i, "out of", map_area_in_tiles, "tiles...");
-						}
 					},
 					1
 				);
