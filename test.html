@@ -1,10 +1,14 @@
 <!doctype html>
 <meta charset="utf-8">
-<img src="big-test.png">
+<img src="bof-save-map.png">
 <canvas id="canvas" tile-size="16"></canvas>
 <div class="tileset"></div>
 <div class="tilemap"></div>
 <style>
+	*
+	{
+		-moz-box-sizing: border-box;
+	}
 	.tileset
 	{
 		width: calc(16px * 8);
@@ -15,7 +19,17 @@
 		display: inline-block;
 		width: 16px;
 		height: 16px;
+		background-clip: border-box;
+		background-origin: border-box;
 		background-image: -moz-element(#canvas);
+	}
+	.tileset :hover
+	{
+		border: 2px dotted rgba(255, 40, 40, 1);
+	}
+	.tileset .selected
+	{
+		border: 2px solid lime;
 	}
 	.tilemap
 	{
@@ -46,6 +60,8 @@
 					console.error("Invalid tile size: ", tile_size);
 					return;
 				}
+				var tileset_div = document.getElementsByClassName('tileset')[0];
+				var tilemap_div = document.getElementsByClassName('tilemap')[0];
 				analyze_image
 				(
 					image, canvas, tile_size, function(error, analysis)
@@ -54,14 +70,36 @@
 						{
 							return;
 						}
-						make_tileset(document.getElementsByClassName('tileset')[0], analysis);
-						make_tilemap(document.getElementsByClassName('tilemap')[0], analysis);
+						make_tileset(tileset_div, analysis);
+						make_tilemap(tilemap_div, analysis);
 						console.log
 						(
 							"Generating tile set & map took",
 							(performance.now() - start_time) / 1000,
 							"seconds."
 						);
+					}
+				);
+				var first_tile = null;
+				tileset_div.addEventListener
+				(
+					'click', function(event)
+					{
+						var target = event.explicitOriginalTarget;
+						if(!first_tile)
+						{
+							target.classList.add('selected');
+							first_tile = target;
+						}
+						else
+						{
+							first_tile.classList.remove('selected');
+							var target_html = target.outerHTML;
+							var first_tile_html = first_tile.outerHTML;
+							target.outerHTML = first_tile_html;
+							first_tile.outerHTML = target_html;
+							first_tile = null;
+						}
 					}
 				);
 			}
