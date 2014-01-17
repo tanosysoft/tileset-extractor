@@ -1,5 +1,27 @@
 <!doctype html>
 <meta charset="utf-8">
+<!--
+	Copyright (C) 2013 Guilherme Vieira
+
+	This program is free software: you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation, either version 3 of the License, or
+	(at your option) any later version.
+
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
+
+	You should have received a copy of the GNU General Public License
+	along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+<link rel="stylesheet" href="basis.css">
+<link rel="stylesheet" href="editor.css">
+<script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+<script src="https://rawgithub.com/satazor/SparkMD5/master/spark-md5.min.js"></script>
+<script src="https://rawgithub.com/n2liquid/live-dom-control/master/live-dom-control.js"></script>
+<script src="analyzer.js"></script>
 <p>
 	<strong>
 		Disclaimer:
@@ -13,202 +35,4 @@
 <canvas id="canvas" tile-size="16"></canvas>
 <div class="tileset"></div>
 <div class="tilemap"></div>
-<style>
-	*
-	{
-		-moz-box-sizing: border-box;
-	}
-	.tileset
-	{
-		width: calc(16px * 8);
-		line-height: 0;
-	}
-	.tileset div
-	{
-		display: inline-block;
-		width: 16px;
-		height: 16px;
-		background-clip: border-box;
-		background-origin: border-box;
-		background-image: -moz-element(#canvas);
-	}
-	.tileset :hover
-	{
-		border: 2px dotted rgba(255, 40, 40, 1);
-	}
-	.tileset .selected
-	{
-		border: 2px solid lime;
-	}
-	.tilemap
-	{
-		position: relative;
-		width: 256px;
-		height: 224px;
-	}
-	.tilemap div
-	{
-		position: absolute;
-		display: inline-block;
-		width: 16px;
-		height: 16px;
-		background-image: -moz-element(#canvas);
-	}
-</style>
-<script src="https://rawgithub.com/satazor/SparkMD5/master/spark-md5.min.js"></script>
-<script>
-		(
-			function()
-			{
-				var start_time = performance.now();
-				var image = document.images[0];
-				var canvas = document.getElementsByTagName('canvas')[0];
-				var tile_size = parseInt(canvas.getAttribute('tile-size'));
-				if(!tile_size)
-				{
-					console.error("Invalid tile size: ", tile_size);
-					return;
-				}
-				var tileset_div = document.getElementsByClassName('tileset')[0];
-				var tilemap_div = document.getElementsByClassName('tilemap')[0];
-				analyze_image
-				(
-					image, canvas, tile_size, function(error, analysis)
-					{
-						if(error)
-						{
-							return;
-						}
-						make_tileset(tileset_div, analysis);
-						make_tilemap(tilemap_div, analysis);
-						console.log
-						(
-							"Generating tile set & map took",
-							(performance.now() - start_time) / 1000,
-							"seconds."
-						);
-					}
-				);
-				var first_tile = null;
-				tileset_div.addEventListener
-				(
-					'click', function(event)
-					{
-						var target = event.explicitOriginalTarget;
-						if(!first_tile)
-						{
-							target.classList.add('selected');
-							first_tile = target;
-						}
-						else
-						{
-							first_tile.classList.remove('selected');
-							var target_html = target.outerHTML;
-							var first_tile_html = first_tile.outerHTML;
-							target.outerHTML = first_tile_html;
-							first_tile.outerHTML = target_html;
-							first_tile = null;
-						}
-					}
-				);
-			}
-		)();
-		function analyze_image(image, canvas, tile_size, callback)
-		{
-			try
-			{
-				canvas.width = image.width;
-				canvas.height = image.height;
-				var context = canvas.getContext('2d');
-				context.drawImage(image, 0, 0);
-				var analysis =
-				{
-					tile_by_coordinates: {},
-					tile_by_hash: {},
-					tile_size: tile_size
-				};
-				analysis.map_width_in_tiles = canvas.width / tile_size;
-				analysis.map_height_in_tiles = canvas.height / tile_size;
-				function is_integer(number)
-				{
-					return (number % 1 === 0);
-				}
-				if(!is_integer(analysis.map_width_in_tiles) || !is_integer(analysis.map_height_in_tiles))
-				{
-					throw new Error("Map width / height must be multiples of tile size.");
-				}
-				var map_area_in_tiles = analysis.map_width_in_tiles * analysis.map_height_in_tiles;
-				var i = 0;
-				var interval = setInterval
-				(
-					function()
-					{
-						if((i + 1) % 32 === 0)
-						{
-							console.log(i, "out of", map_area_in_tiles, "tiles...");
-						}
-						do
-						{
-							var x = i % analysis.map_width_in_tiles;
-							var y = Math.floor(i / analysis.map_width_in_tiles);
-							var tile_image_data = context.getImageData
-							(
-								x * tile_size,
-								y * tile_size,
-								tile_size,
-								tile_size
-							);
-							var tile_data = tile_image_data.data;
-							var tile_hash = SparkMD5.ArrayBuffer.hash(tile_data);
-							analysis.tile_by_coordinates[[x, y].join('/')] = { hash: tile_hash };
-							analysis.tile_by_hash[tile_hash] = { x: x, y: y };
-							if(++i === map_area_in_tiles)
-							{
-								clearInterval(interval);
-								callback(null, analysis);
-								break;
-							}
-						} while(i % 4 !== 0);
-					},
-					1
-				);
-			}
-			catch(error)
-			{
-				console.error(error);
-				callback(error);
-			}
-		}
-		function make_tileset(tileset_div, analysis)
-		{
-			for(var hash in analysis.tile_by_hash)
-			{
-				var tile = analysis.tile_by_hash[hash];
-				var x = (-tile.x * 16) + 'px';
-				var y = (-tile.y * 16) + 'px';
-				var tile_div = document.createElement('div');
-				tile_div.style = 'background-position: ' + [x, y].join(' ') + ';';
-				tile_div.id = 'tile-' + hash;
-				tileset_div.appendChild(tile_div);
-			}
-		}
-		function make_tilemap(tilemap_div, analysis)
-		{
-			for(var coords in analysis.tile_by_coordinates)
-			{
-				var hash = analysis.tile_by_coordinates[coords].hash;
-				var tile = analysis.tile_by_hash[hash];
-				var coords_array = coords.split('/');
-				var x = (coords_array[0] * analysis.tile_size) + 'px';
-				var y = (coords_array[1] * analysis.tile_size) + 'px';
-				var tile_div = document.createElement('div');
-				tile_div.style = 
-				[
-					'left: ' + x,
-					'top: ' + y,
-					'background-image: -moz-element(#tile-' + hash + ')'
-				].join(';');
-				tilemap_div.appendChild(tile_div);
-			}
-		}
-</script>
+<script src="editor.js"></script>

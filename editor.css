@@ -1,0 +1,16 @@
+#canvas
+{
+	position: absolute;
+	left: -999999px;
+}
+.tileset
+{
+	width: calc(16px * 8);
+	line-height: 0;
+}
+.tileset .tile,
+.tilemap .tile
+{
+	width: 16px;
+	height: 16px;
+}
