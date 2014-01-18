@@ -121,12 +121,54 @@ editor.make_tilemap = function(tilemap_div, analysis)
 		var y = (coords_array[1] * analysis.tile_size) + 'px';
 		var tile_div = document.createElement('div');
 		tile_div.classList.add('tile');
+		tile_div.setAttribute('hash', hash);
 		tile_div.style = 
 		[
 			'left: ' + x,
-			'top: ' + y,
-			'background-image: -moz-element(#tile-' + hash + ')'
+			'top: ' + y
 		].join(';');
 		tilemap_div.appendChild(tile_div);
 	}
 };
+dom_control
+(
+	'.tilemap .tile', function tilemap_tile_handler(event, element, attribute, old_value)
+	{
+		switch(event)
+		{
+			case 'exists':
+			case 'added':
+				var hash = element.getAttribute('hash');
+				tilemap_tile_handler('set-attribute', element, 'hash', hash);
+				break;
+			case 'mutated':
+			case 'set-attribute':
+				if(attribute !== 'hash')
+				{
+					break;
+				}
+				var value = element.getAttribute('hash');
+				var tileset_tile = document.getElementById('tile-' + value);
+				if(!tileset_tile)
+				{
+					element.classList.add('bad-hash');
+					break;
+				}
+				element.classList.remove('bad-hash');
+				element.style.backgroundPosition = tileset_tile.style.backgroundPosition;
+				break;
+		}
+	}
+);
+dom_control
+(
+	'.tileset .tile', function(event, element)
+	{
+		if(event !== 'removed')
+		{
+			return;
+		}
+		var hash = element.id.split('-')[1];
+		$('.tilemap .tile[hash="' + hash + '"]').addClass('bad-hash');
+	}
+);

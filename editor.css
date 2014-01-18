@@ -14,3 +14,20 @@
 	width: 16px;
 	height: 16px;
 }
+.tilemap .bad-hash
+{
+	border: 1px solid yellow;
+	background-image: none;
+	animation: bad-hash 0.8s steps(2, end) 0s infinite;
+}
+@keyframes bad-hash
+{
+	from
+	{
+		background-color: red;
+	}
+	to
+	{
+		background-color: darkred;
+	}
+}
