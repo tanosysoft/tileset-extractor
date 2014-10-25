@@ -26,15 +26,25 @@ function default_if_undefined(value, default_value) {
 		return value;
 	}
 }
+function assign_default_values(object, default_values) {
+	var key;
+	for(key in default_values) {
+		object[key] = default_if_undefined(object[key], default_values[key]);
+	}
+}
 window.analyze_tilemap = function(image, canvas, options, callback) {
 	if(!callback) {
 		callback = options;
 		options = {};
 	}
-	var tile_size = default_if_undefined(options.tile_size, 32);
-	var log_progress = default_if_undefined(options.log_progress, true);
-	var log_errors = default_if_undefined(options.log_errors, true);
-	var hashes_per_event_loop = default_if_undefined(options.hashes_per_event_loop, 4);
+	assign_default_values (
+		options, {
+			tile_size: 32
+			, log_progress: true
+			, log_errors: true
+			, hashes_per_event_loop: 4
+		}
+	);
 	var context;
 	var analysis;
 	try {
@@ -43,11 +53,11 @@ window.analyze_tilemap = function(image, canvas, options, callback) {
 		context = canvas.getContext('2d');
 		context.drawImage(image, 0, 0);
 		analysis = {
-			tile_size: tile_size
+			tile_size: options.tile_size
 			, tileset: {}
 			, tilemap: {
-				width: canvas.width / tile_size
-				, height: canvas.height / tile_size
+				width: canvas.width / options.tile_size
+				, height: canvas.height / options.tile_size
 				, tiles: {}
 			}
 		};
@@ -65,7 +75,7 @@ window.analyze_tilemap = function(image, canvas, options, callback) {
 					var x;
 					var y;
 					var tile_hash;
-					if(log_progress && i % 32 === 0) {
+					if(options.log_progress && i % 32 === 0) {
 						console.log("Hashing tile ", i, "out of", map_area_in_tiles, "...");
 					}
 					do {
@@ -73,10 +83,10 @@ window.analyze_tilemap = function(image, canvas, options, callback) {
 						y = Math.floor(i / analysis.map_width_in_tiles);
 						tile_hash = SparkMD5.ArrayBuffer.hash (
 							context.getImageData (
-								x * tile_size
-								, y * tile_size
-								, tile_size
-								, tile_size
+								x * options.tile_size
+								, y * options.tile_size
+								, options.tile_size
+								, options.tile_size
 							)
 							.data
 						);
@@ -88,7 +98,7 @@ window.analyze_tilemap = function(image, canvas, options, callback) {
 							break;
 						}
 					} while (
-						i % hashes_per_event_loop !== 0
+						i % options.hashes_per_event_loop !== 0
 					);
 				},
 				1
@@ -96,7 +106,7 @@ window.analyze_tilemap = function(image, canvas, options, callback) {
 		})();
 	}
 	catch(error) {
-		if(log_errors) {
+		if(options.log_errors) {
 			console.error(error);
 		}
 		callback(error);
