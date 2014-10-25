@@ -18,15 +18,23 @@
 function is_integer(number) {
 	return (number % 1 === 0);
 }
+function default_if_undefined(value, default_value) {
+	if(value === undefined) {
+		return default_value;
+	}
+	else {
+		return value;
+	}
+}
 window.analyze_tilemap = function(image, canvas, options, callback) {
 	if(!callback) {
 		callback = options;
 		options = {};
 	}
-	var tile_size = options.tile_size || 32;
-	var log_progress = options.log_progress || true;
-	var log_errors = options.log_errors || true;
-	var hashes_per_event_loop = options.hashes_per_event_loop || 4;
+	var tile_size = default_if_undefined(options.tile_size, 32);
+	var log_progress = default_if_undefined(options.log_progress, true);
+	var log_errors = default_if_undefined(options.log_errors, true);
+	var hashes_per_event_loop = default_if_undefined(options.hashes_per_event_loop, 4);
 	var context;
 	var analysis;
 	try {
