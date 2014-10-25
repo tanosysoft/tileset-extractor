@@ -35,7 +35,7 @@ function assign_default_values(object, default_values) {
 		object[key] = default_if_undefined(object[key], default_values[key]);
 	}
 }
-window.analyze_tilemap = function(image, canvas, options, callback) {
+window.analyze_tilemap = function(image, options, callback) {
 	if(!callback) {
 		callback = options;
 		options = {};
@@ -48,6 +48,7 @@ window.analyze_tilemap = function(image, canvas, options, callback) {
 			, hashes_per_event_loop: 4
 		}
 	);
+	var canvas = document.createElement('canvas');
 	var context;
 	var analysis;
 	try {
