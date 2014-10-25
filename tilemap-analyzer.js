@@ -15,11 +15,10 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 'use strict';
-window.tilesetting = window.tilesetting || {};
 function is_integer(number) {
 	return (number % 1 === 0);
 }
-tilesetting.analyze_image = function(image, canvas, options, callback) {
+window.analyze_tilemap = function(image, canvas, options, callback) {
 	if(!callback) {
 		callback = options;
 		options = {};
