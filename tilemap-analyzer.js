@@ -15,8 +15,11 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 'use strict';
-function is_integer(number) {
-	return (number % 1 === 0);
+function ensure_integer(value, error_message) {
+	if(number % 1 !== 0) {
+		throw new Error(error_message);
+	}
+	return value;
 }
 function default_if_undefined(value, default_value) {
 	if(value === undefined) {
@@ -56,8 +59,14 @@ window.analyze_tilemap = function(image, canvas, options, callback) {
 			tile_size: options.tile_size
 			, tileset: {}
 			, tilemap: {
-				width: canvas.width / options.tile_size
-				, height: canvas.height / options.tile_size
+				width: ensure_integer (
+					canvas.width / options.tile_size
+					, "Map width must be multiple of tile size."
+				)
+				, height: ensure_integer (
+					canvas.height / options.tile_size
+					, "Map height must be multiple of tile size."
+				)
 				, tiles: {}
 			}
 		};
