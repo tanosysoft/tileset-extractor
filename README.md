@@ -1,6 +1,15 @@
-Tilesetting
-===========
+# Tileset Extractor
 
-Tilesetting is _free software_ under the terms of the GPLv3 license, a copy of which can be found in [COPYING.](COPYING) This means that, if you include in a website page, all JavaScript and CSS code on that page directly or indirectly relying on Tilesetting must be licensed under a [GPLv3-compatible license.](https://www.gnu.org/licenses/license-list.html#GPLCompatibleLicenses) Some free software licenses are unfortunately [not GPLv3-compatible.](https://www.gnu.org/licenses/license-list.html#GPLIncompatibleLicenses)
+No time to explain. Code is worth a thousand words.
 
-This is important in order to perpetuate free software and combat all forms of non-free software. Learn more about GPLv3 on [gnu.org/licenses.](https://www.gnu.org/licenses/quick-guide-gplv3.html)
+## License
+
+![](https://www.gnu.org/graphics/agplv3-155x51.png)
+
+Tileset Extractor is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+
+## Exclusion of warranty
+
+Tileset Extractor is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more details.
+
+A copy of AGPLv3 can be found in [COPYING.](COPYING)

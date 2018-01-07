@@ -1,0 +1,21 @@
+{
+  "name": "tileset-extractor",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "browserify main.js -o bundle.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tanosysoft/tileset-extractor.git"
+  },
+  "author": "Guilherme Prá Vieira (super.driver.512@gmail.com)",
+  "license": "AGPL-3.0+",
+  "bugs": {
+    "url": "https://github.com/tanosysoft/tileset-extractor/issues"
+  },
+  "homepage": "https://github.com/tanosysoft/tileset-extractor#readme",
+  "dependencies": {
+    "browserify": "^15.0.0",
+    "spark-md5": "^3.0.0"
+  }
+}
